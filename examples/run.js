@@ -7,8 +7,11 @@ async function main(videoId) {
 }
 
 async function runTests() {
-  await main('RVx9KmrMiRM')
-  await main('76sNmqMzUuI')
+  // await main('RVx9KmrMiRM')
+  // console.log('---')
+  // await main('76sNmqMzUuI')
+  // console.log('---')
+  await main('BSRddWXSAA4')
 }
 
 runTests();
