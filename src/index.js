@@ -10,14 +10,17 @@ async function getMostReplayedParts(videoId, parts = 1) {
   await page.goto(`https://www.youtube.com/watch?v=${videoId}`);
 
   let data = await extractJSONData(page);
+  let videoLength = null;
   if (!data) {
-    data = await extractHeatMapData(page, videoId);
+    const result = await extractHeatMapData(page, videoId);
+    data = result.heatMapData;
+    videoLength = result.videoLength;
   }
 
   await browser.close();
 
   const replayedParts = getTopReplayedParts(data, parts);
-  return replayedParts;
+  return { replayedParts, videoLength };
 }
 
 function getTopReplayedParts(data, parts) {
@@ -77,7 +80,11 @@ async function extractHeatMapData(page, videoId, retryCount = 0, maxRetries = 3)
     const heatMapContainer = await page.$('.ytp-heat-map-svg');
     if (heatMapContainer) {
       const heatMapHTML = await page.evaluate(el => el.innerHTML, heatMapContainer);
-      return processHeatMapData(heatMapHTML, videoLength);
+      
+      return {
+        heatMapData: processHeatMapData(heatMapHTML, videoLength),
+        videoLength: parseInt(videoLength, 10)
+      };
     } else {
       console.log('No heat map container found for video:', videoId);
       return null;
