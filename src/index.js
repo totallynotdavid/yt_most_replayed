@@ -1,9 +1,8 @@
 const puppeteer = require('puppeteer');
 
-async function getMostReplayedParts(videoId) {
+async function getMostReplayedParts(videoId, parts = 1) {
   const browserOptions = {
-    headless: 'new',
-    args: ['--no-sandbox', '--disable-setuid-sandbox']
+    headless: 'true',
   };
 
   const browser = await puppeteer.launch(browserOptions);
@@ -16,7 +15,28 @@ async function getMostReplayedParts(videoId) {
   }
 
   await browser.close();
-  return data;
+
+  const replayedParts = getTopReplayedParts(data, parts);
+  return replayedParts;
+}
+
+function getTopReplayedParts(data, parts) {
+  if (!data || !data.markers) {
+    return [];
+  }
+
+  // Sort the markers by intensityScoreNormalized in descending order
+  const sortedMarkers = data.markers.sort((a, b) => b.intensityScoreNormalized - a.intensityScoreNormalized);
+
+  // Take the top 'parts' markers
+  const topMarkers = sortedMarkers.slice(0, parts);
+
+  // Format the output
+  return topMarkers.map((marker, index) => ({
+      position: index + 1,
+      start: Math.round(Number(marker.startMillis) / 1000),
+      end: Math.round((Number(marker.startMillis) + Number(marker.durationMillis)) / 1000)
+  }));
 }
 
 async function extractJSONData(page) {
@@ -44,7 +64,7 @@ async function extractJSONData(page) {
   }
 }
 
-async function extractHeatMapData(page, videoId) {
+async function extractHeatMapData(page, videoId, retryCount = 0, maxRetries = 3) {
   try {
     await page.waitForSelector('.ytp-heat-map-svg', { timeout: 5000 });
     await page.waitForSelector('.ytp-progress-bar', { timeout: 5000 });
@@ -63,8 +83,14 @@ async function extractHeatMapData(page, videoId) {
       return null;
     }
   } catch (e) {
-    console.error('Error in HeatMap extraction:', e);
-    return null;
+    if (retryCount < maxRetries) {
+      console.log(`Retrying... Attempt ${retryCount + 1} of ${maxRetries}`);
+      await page.reload({ waitUntil: ["networkidle0", "domcontentloaded"] });
+      return extractHeatMapData(page, videoId, retryCount + 1, maxRetries);
+    } else {
+      console.error('Maximum retries reached. Unable to find required selectors:', e);
+      return null;
+    }
   }
 }
 
@@ -104,8 +130,8 @@ function analyzeSegments(segments, videoLength) {
     const normalizedIntensity = normalizeIntensity(segment.y);
 
     return {
-      startMillis: index * segmentDuration,
-      durationMillis: segmentDuration,
+      startMillis: (index * segmentDuration) * 1000,
+      durationMillis: segmentDuration * 1000,
       intensityScoreNormalized: normalizedIntensity
     };
   });
