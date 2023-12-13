@@ -1,9 +1,9 @@
-const { getMostReplayedParts } = require('../src/index');
+const { getMostReplayedParts } = require("../src/index")
 
 async function main(videoId, parts) {
-  const mostReplayed = await getMostReplayedParts(videoId, parts);
-  console.log(mostReplayed);
-  return mostReplayed;
+  const mostReplayed = await getMostReplayedParts(videoId, parts)
+  console.log(mostReplayed)
+  return mostReplayed
 }
 
 async function runTests() {
@@ -11,7 +11,7 @@ async function runTests() {
   // console.log('---')
   // await main('76sNmqMzUuI')
   // console.log('---')
-  await main('BSRddWXSAA4', 3)
+  await main("BSRddWXSAA4", 3)
 }
 
-runTests();
+runTests()
