@@ -1,6 +1,7 @@
 async function waitForAdSkip(videoPage, maxWaitTime = 15000) {
   const startTime = Date.now()
 
+  // eslint-disable-next-line no-constant-condition
   while (true) {
     // Check if the maximum waiting time has been exceeded
     if (Date.now() - startTime > maxWaitTime) {
