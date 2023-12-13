@@ -1,14 +1,27 @@
 {
   "name": "yt_most_replayed",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Obtain the most replayed segments from a YouTube video",
+  "main": "src/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "lint": "eslint . --ext .js",
+    "lint:fix": "eslint . --ext .js --fix",
+    "prettier": "prettier --write ."
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "YouTube",
+    "video",
+    "most_replayed"
+  ],
+  "author": "David Duran <david@caefisica.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "eslint": "^8.55.0",
+    "eslint-plugin-jest": "^27.6.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.0.1",
+    "prettier": "^3.1.1"
+  },
   "dependencies": {
     "puppeteer": "^21.6.0"
   }
