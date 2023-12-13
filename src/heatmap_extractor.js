@@ -1,4 +1,5 @@
 const { extractPointsFromPath } = require('./path_processing');
+const { processSVG } = require('./svg_processing');
 
 async function extractHeatMapData(page, videoId, retryCount = 0, maxRetries = 3) {
   try {
@@ -40,19 +41,9 @@ async function extractHeatMapData(page, videoId, retryCount = 0, maxRetries = 3)
 }
 
 function processHeatMapData(heatMapHTML, videoLength) {
-  const pathRegex = /<path class="ytp-heat-map-path" d="([^"]+)"/g;
-  let match;
-  let pathData = '';
-
-  while ((match = pathRegex.exec(heatMapHTML)) !== null) {
-    pathData += match[1] + ' ';
-  }
-
-  if (pathData === '') {
-    console.error('No path data found in heatmap HTML.');
-    return null;
-  }
-  const segments = extractPointsFromPath(pathData.trim());
+  const pathData = processSVG(heatMapHTML);
+  // The path data is a single string
+  const segments = extractPointsFromPath(pathData);
   const replayedParts = analyzeSegments(segments, videoLength);
   return replayedParts;
 }
