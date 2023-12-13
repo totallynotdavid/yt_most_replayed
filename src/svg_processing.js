@@ -1,3 +1,9 @@
+/*
+  * This script joins to SVG paths and returns ONE cleaned path data string.
+  * It is written to work with paths obtained from YouTube heatmaps.
+  * Writing this script was a nigthmare, but it works. I'm not going to touch it again. Ever.
+  * Oh, hello there future me. I see you're trying to fix something. Good luck. REALLY. You'll need it.
+*/
 const fs = require('fs');
 
 function parseSVG(fileName) {
@@ -57,20 +63,53 @@ function adjustPathCoordinates(paths) {
     return adjustedPaths;
 }
 
+function removeArtifacts(pathData) {
+  const jointRegex = /L (\d+,\d+) M \1/g;
+
+  const pathDataArray = pathData.split(" ");
+  let removalIndices = [];
+
+  // Find indices of the joint parts
+  let match;
+  while ((match = jointRegex.exec(pathData)) !== null) {
+      // Calculate the number of elements before the joint in the array
+      const elementsBefore = pathData.substring(0, match.index).split(" ").length;
+      const jointIndexInArray = elementsBefore - 1; // Subtract 1 as split includes the joint element itself
+
+      // Mark indices for removal (-6 to -1, and +1 to +9 relative to the joint)
+      for (let i = -6; i <= -1; i++) {
+          removalIndices.push(jointIndexInArray + i);
+      }
+      for (let i = 1; i <= 9; i++) {
+          removalIndices.push(jointIndexInArray + i);
+      }
+  }
+
+  // Remove marked indices in reverse order to avoid index shifting
+  removalIndices.sort((a, b) => b - a);
+  removalIndices.forEach(index => {
+      if (index >= 0 && index < pathDataArray.length) {
+          pathDataArray.splice(index, 1);
+      }
+  });
+
+  return pathDataArray.join(" ");
+}
+
 function processSVG(fileName) {
-    const svgData = parseSVG(fileName);
-    const pathRegex = /<path[^>]*d="([^"]*)"/g;
-    let match;
-    let paths = [];
+  const svgData = parseSVG(fileName);
+  const pathRegex = /<path[^>]*d="([^"]*)"/g;
+  let match;
+  let paths = [];
 
-    while ((match = pathRegex.exec(svgData)) !== null) {
-        paths.push(match[1]);
-    }
+  while ((match = pathRegex.exec(svgData)) !== null) {
+      paths.push(match[1]);
+  }
 
-    const adjustedPaths = adjustPathCoordinates(paths);
-    const combinedPath = adjustedPaths.join(' ');
-    const combinedSVG = combinedPath;
-    return combinedSVG;
+  const adjustedPaths = adjustPathCoordinates(paths);
+  const combinedPath = adjustedPaths.join(' ');
+  const cleanedPath = removeArtifacts(combinedPath);
+  return cleanedPath;
 }
 
 const result = processSVG('test.svg');
