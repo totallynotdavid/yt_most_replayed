@@ -4,11 +4,6 @@
   * Writing this script was a nigthmare, but it works. I'm not going to touch it again. Ever.
   * Oh, hello there future me. I see you're trying to fix something. Good luck. REALLY. You'll need it.
 */
-const fs = require('fs');
-
-function parseSVG(fileName) {
-    return fs.readFileSync(fileName, 'utf8');
-}
 
 function pathToCoordinates(pathData) {
     const commandRegex = /([a-zA-Z])([^a-zA-Z]*)/g;
@@ -97,7 +92,7 @@ function removeArtifacts(pathData) {
 }
 
 function processSVG(fileName) {
-  const svgData = parseSVG(fileName);
+  const svgData = fileName;
   const pathRegex = /<path[^>]*d="([^"]*)"/g;
   let match;
   let paths = [];
@@ -112,5 +107,6 @@ function processSVG(fileName) {
   return cleanedPath;
 }
 
-const result = processSVG('test.svg');
-console.log(result)
+module.exports = {
+  processSVG
+};
