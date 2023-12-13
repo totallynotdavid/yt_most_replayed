@@ -10,12 +10,17 @@ async function extractHeatMapData(page, videoId, retryCount = 0, maxRetries = 3)
       return progressBar.getAttribute('aria-valuemax');
     });
 
-    const heatMapContainer = await page.$('.ytp-heat-map-svg');
-    if (heatMapContainer) {
-      const heatMapSVG = await page.evaluate(el => el.outerHTML, heatMapContainer);
+    const heatMapContainers = await page.$$('.ytp-heat-map-svg');
+    if (heatMapContainers.length > 0) {
+      let combinedHeatMapSVG = '';
 
+      for (const container of heatMapContainers) {
+        const heatMapSVG = await page.evaluate(el => el.outerHTML, container);
+        combinedHeatMapSVG += heatMapSVG;
+      }
+      
       return {
-        heatMapData: processHeatMapData(heatMapSVG, videoLength),
+        heatMapData: processHeatMapData(combinedHeatMapSVG, videoLength),
         videoLength: parseInt(videoLength, 10)
       };
     } else {
@@ -35,15 +40,19 @@ async function extractHeatMapData(page, videoId, retryCount = 0, maxRetries = 3)
 }
 
 function processHeatMapData(heatMapHTML, videoLength) {
-  const pathRegex = /<path class="ytp-heat-map-path" d="([^"]+)"/;
-  const match = heatMapHTML.match(pathRegex);
-  if (!match) {
+  const pathRegex = /<path class="ytp-heat-map-path" d="([^"]+)"/g;
+  let match;
+  let pathData = '';
+
+  while ((match = pathRegex.exec(heatMapHTML)) !== null) {
+    pathData += match[1] + ' ';
+  }
+
+  if (pathData === '') {
     console.error('No path data found in heatmap HTML.');
     return null;
   }
-  const pathData = match[1];
-  const segments = extractPointsFromPath(pathData);
-
+  const segments = extractPointsFromPath(pathData.trim());
   const replayedParts = analyzeSegments(segments, videoLength);
   return replayedParts;
 }
