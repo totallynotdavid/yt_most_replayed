@@ -1,7 +1,7 @@
-const { extractPointsFromPath } = require("./path_processing")
+const { extractPointsFromPath } = require("./svgPathAnalysis")
 const { processSVG } = require("./svg_processing")
 
-async function extractHeatMapData(
+async function extractYoutubeSvgHeatmap(
   page,
   videoId,
   retryCount = 0,
@@ -37,7 +37,7 @@ async function extractHeatMapData(
     if (retryCount < maxRetries) {
       console.log(`Retrying... Attempt ${retryCount + 1} of ${maxRetries}`)
       await page.reload({ waitUntil: ["networkidle0", "domcontentloaded"] })
-      return extractHeatMapData(page, videoId, retryCount + 1, maxRetries)
+      return extractYoutubeSvgHeatmap(page, videoId, retryCount + 1, maxRetries)
     } else {
       console.error(
         "Maximum retries reached. Unable to find required selectors:",
@@ -90,5 +90,5 @@ function normalizeIntensity(yValue, maxYValue) {
 }
 
 module.exports = {
-  extractHeatMapData,
+  extractYoutubeSvgHeatmap,
 }

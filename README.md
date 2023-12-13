@@ -33,13 +33,13 @@ getMostReplayedParts("dQw4w9WgXcQ", 3)
   .catch((error) => console.error(error))
 ```
 
-`extractHeatMapData(page, videoId, retryCount, maxRetries)` is an internal function to extract heat map data from a YouTube page.
+`extractYoutubeSvgHeatmap(page, videoId, retryCount, maxRetries)` is an internal function to extract heat map data from a YouTube page.
 
 `processHeatMapData(heatMapHTML, videoLength)` processes the extracted heat map HTML and video length to determine replayed parts.
 
 `analyzeSegments(segments, videoLength)` analyzes segments extracted from the heat map for replay intensity.
 
-`extractJSONData(page)` extracts JSON data from a YouTube video page for additional insights.
+`extractYoutubeJsonData(page)` extracts JSON data from a YouTube video page for additional insights.
 
 ## Contributing
 

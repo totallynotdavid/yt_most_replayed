@@ -1,8 +1,8 @@
 const puppeteer = require("puppeteer")
 const { checkForAds, waitForAdSkip } = require("./youtube_ads")
-const { extractJSONData } = require("./json_extractor")
-const { extractHeatMapData } = require("./heatmap_extractor")
-const { getTopReplayedParts } = require("./sort_worker")
+const { extractYoutubeJsonData } = require("./youtubeJsonExtractor")
+const { extractYoutubeSvgHeatmap } = require("./youtubeSvgHeatmapExtractor")
+const { getTopReplayedParts } = require("./youtubeHeatmapSorter")
 
 async function getMostReplayedParts(videoId, parts = 1) {
   const browserOptions = {
@@ -18,10 +18,10 @@ async function getMostReplayedParts(videoId, parts = 1) {
     await waitForAdSkip(page)
   }
 
-  let data = await extractJSONData(page)
+  let data = await extractYoutubeJsonData(page)
   let videoLength = null
   if (!data) {
-    const result = await extractHeatMapData(page, videoId)
+    const result = await extractYoutubeSvgHeatmap(page, videoId)
     data = result.heatMapData
     videoLength = result.videoLength
   }

@@ -1,4 +1,4 @@
-async function extractJSONData(page) {
+async function extractYoutubeJsonData(page) {
   await page
     .waitForSelector("script", { timeout: 5000 })
     .catch(() => console.log("Timeout waiting for script tags"))
@@ -30,5 +30,5 @@ async function extractJSONData(page) {
 }
 
 module.exports = {
-  extractJSONData,
+  extractYoutubeJsonData,
 }
