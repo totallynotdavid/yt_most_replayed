@@ -1,6 +1,6 @@
 {
   "name": "yt_most_replayed",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "Obtain the most replayed segments from a YouTube video",
   "main": "src/index.js",
   "scripts": {
