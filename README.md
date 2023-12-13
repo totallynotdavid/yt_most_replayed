@@ -1,3 +1,5 @@
+[![npm](https://img.shields.io/npm/v/yt_most_replayed.svg)](https://www.npmjs.com/package/yt_most_replayed) ![yt_most_replayed 0.0.1](https://img.shields.io/badge/yt_most_replayed-0.0.1-brightgreen.svg)
+
 # YouTube Heat Map Data Extraction
 
 This project uses Puppeteer to obtain the most replayed sections in a YouTube video by analyzing the heat map and JSON data. It's effective but not foolproof, especially for longer videos (+40 min) where accuracy may decline.
