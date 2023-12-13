@@ -42,7 +42,6 @@ async function extractHeatMapData(page, videoId, retryCount = 0, maxRetries = 3)
 
 function processHeatMapData(heatMapHTML, videoLength) {
   const pathData = processSVG(heatMapHTML);
-  // The path data is a single string
   const segments = extractPointsFromPath(pathData);
   const replayedParts = analyzeSegments(segments, videoLength);
   return replayedParts;
@@ -50,14 +49,11 @@ function processHeatMapData(heatMapHTML, videoLength) {
 
 function analyzeSegments(segments, videoLength) {
   const segmentDuration = videoLength / segments.length;
+  const validSegments = segments.filter(segment => !isNaN(segment.y) && segment.y !== undefined);
+  const maxYValue = validSegments.reduce((max, segment) => Math.max(max, segment.y), validSegments[0].y);
 
-  // Find the maximum Y value in the segments
-  const maxYValue = segments.reduce((max, segment) => Math.max(max, segment.y), segments[0].y);
-
-  const normalizedSegments = segments.map((segment, index) => {
-    // Normalize the intensity of each segment based on the maximum Y value
+  const normalizedSegments = validSegments.map((segment, index) => {
     const normalizedIntensity = normalizeIntensity(segment.y, maxYValue);
-
     return {
       startMillis: index * segmentDuration * 1000,
       durationMillis: segmentDuration * 1000,
@@ -65,14 +61,9 @@ function analyzeSegments(segments, videoLength) {
     };
   });
 
-  // Filter out invalid segments
-  const validSegments = normalizedSegments.filter(segment => 
-    !isNaN(segment.intensityScoreNormalized) && segment.intensityScoreNormalized !== undefined
-  );
-
   return {
     markerType: 'MARKER_TYPE_HEATMAP',
-    markers: validSegments
+    markers: normalizedSegments
   };
 }
 
@@ -81,8 +72,7 @@ function normalizeIntensity(yValue, maxYValue) {
     return 0;
   }
 
-  const invertedY = maxYValue - yValue;
-  const normalizedIntensity = invertedY / maxYValue;
+  const normalizedIntensity = yValue / maxYValue;
   return normalizedIntensity;
 }
 
