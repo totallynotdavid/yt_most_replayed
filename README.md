@@ -26,11 +26,11 @@ pnpm install yt_most_replayed
 Example:
 
 ```javascript
-const { getMostReplayedParts } = require("yt_most_replayed");
+const { getMostReplayedParts } = require("yt_most_replayed")
 
-getMostReplayedParts('dQw4w9WgXcQ', 3)
-  .then(data => console.log(data))
-  .catch(error => console.error(error));
+getMostReplayedParts("dQw4w9WgXcQ", 3)
+  .then((data) => console.log(data))
+  .catch((error) => console.error(error))
 ```
 
 `extractHeatMapData(page, videoId, retryCount, maxRetries)` is an internal function to extract heat map data from a YouTube page.
