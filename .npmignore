@@ -13,3 +13,4 @@ jest.config.js
 .prettierrc
 .prettierignore
 pnpm-lock.yaml
+LICENSE
