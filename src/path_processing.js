@@ -4,15 +4,18 @@ function extractPointsFromPath(pathData) {
   const points = [];
   let currentX = 0, currentY = 0;
 
-  // First pass: Calculate maxY
+  // First pass: Calculate maxY for M and L commands
   for (const pair of commandDataPairs) {
     const command = pair[0];
     const dataNumbers = pair.substring(1).trim().split(/[\s,]+/).map(parseFloat);
+    
+    // Skip if no numbers are present
+    if (dataNumbers.length === 0) continue;
 
-    if (command === 'C') {
-      maxY = Math.max(maxY, dataNumbers[1], dataNumbers[3], dataNumbers[5]);
-    } else if (command === 'M') {
-      maxY = Math.max(maxY, dataNumbers[1]);
+    if (command === 'M' || command === 'L') {
+      for (let i = 1; i < dataNumbers.length; i += 2) {
+        maxY = Math.max(maxY, dataNumbers[i]);
+      }
     }
   }
 
@@ -21,15 +24,14 @@ function extractPointsFromPath(pathData) {
     const command = pair[0];
     const dataNumbers = pair.substring(1).trim().split(/[\s,]+/).map(parseFloat);
 
+    // Skip if no numbers are present
+    if (dataNumbers.length === 0) continue;
+
     switch (command) {
       case 'M':
+      case 'L':
         currentX = dataNumbers[0];
         currentY = maxY - dataNumbers[1];
-        points.push({ x: currentX, y: currentY });
-        break;
-      case 'C':
-        currentX = dataNumbers[4];
-        currentY = maxY - dataNumbers[5];
         points.push({ x: currentX, y: currentY });
         break;
     }

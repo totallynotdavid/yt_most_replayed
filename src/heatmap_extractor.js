@@ -1,4 +1,5 @@
 const { extractPointsFromPath } = require('./path_processing');
+const { processSVG } = require('./svg_processing');
 
 async function extractHeatMapData(page, videoId, retryCount = 0, maxRetries = 3) {
   try {
@@ -10,12 +11,17 @@ async function extractHeatMapData(page, videoId, retryCount = 0, maxRetries = 3)
       return progressBar.getAttribute('aria-valuemax');
     });
 
-    const heatMapContainer = await page.$('.ytp-heat-map-svg');
-    if (heatMapContainer) {
-      const heatMapSVG = await page.evaluate(el => el.outerHTML, heatMapContainer);
+    const heatMapContainers = await page.$$('.ytp-heat-map-svg');
+    if (heatMapContainers.length > 0) {
+      let combinedHeatMapSVG = '';
 
+      for (const container of heatMapContainers) {
+        const heatMapSVG = await page.evaluate(el => el.outerHTML, container);
+        combinedHeatMapSVG += heatMapSVG;
+      }
+      
       return {
-        heatMapData: processHeatMapData(heatMapSVG, videoLength),
+        heatMapData: processHeatMapData(combinedHeatMapSVG, videoLength),
         videoLength: parseInt(videoLength, 10)
       };
     } else {
@@ -35,29 +41,19 @@ async function extractHeatMapData(page, videoId, retryCount = 0, maxRetries = 3)
 }
 
 function processHeatMapData(heatMapHTML, videoLength) {
-  const pathRegex = /<path class="ytp-heat-map-path" d="([^"]+)"/;
-  const match = heatMapHTML.match(pathRegex);
-  if (!match) {
-    console.error('No path data found in heatmap HTML.');
-    return null;
-  }
-  const pathData = match[1];
+  const pathData = processSVG(heatMapHTML);
   const segments = extractPointsFromPath(pathData);
-
   const replayedParts = analyzeSegments(segments, videoLength);
   return replayedParts;
 }
 
 function analyzeSegments(segments, videoLength) {
   const segmentDuration = videoLength / segments.length;
+  const validSegments = segments.filter(segment => !isNaN(segment.y) && segment.y !== undefined);
+  const maxYValue = validSegments.reduce((max, segment) => Math.max(max, segment.y), validSegments[0].y);
 
-  // Find the maximum Y value in the segments
-  const maxYValue = segments.reduce((max, segment) => Math.max(max, segment.y), segments[0].y);
-
-  const normalizedSegments = segments.map((segment, index) => {
-    // Normalize the intensity of each segment based on the maximum Y value
+  const normalizedSegments = validSegments.map((segment, index) => {
     const normalizedIntensity = normalizeIntensity(segment.y, maxYValue);
-
     return {
       startMillis: index * segmentDuration * 1000,
       durationMillis: segmentDuration * 1000,
@@ -65,14 +61,9 @@ function analyzeSegments(segments, videoLength) {
     };
   });
 
-  // Filter out invalid segments
-  const validSegments = normalizedSegments.filter(segment => 
-    !isNaN(segment.intensityScoreNormalized) && segment.intensityScoreNormalized !== undefined
-  );
-
   return {
     markerType: 'MARKER_TYPE_HEATMAP',
-    markers: validSegments
+    markers: normalizedSegments
   };
 }
 
@@ -81,8 +72,7 @@ function normalizeIntensity(yValue, maxYValue) {
     return 0;
   }
 
-  const invertedY = maxYValue - yValue;
-  const normalizedIntensity = invertedY / maxYValue;
+  const normalizedIntensity = yValue / maxYValue;
   return normalizedIntensity;
 }
 
