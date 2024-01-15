@@ -18,7 +18,7 @@ devDependencies:
     version: 9.1.0(eslint@8.55.0)
   eslint-plugin-jest:
     specifier: ^27.6.0
-    version: 27.6.0(eslint@8.55.0)(typescript@5.3.3)
+    version: 27.6.3(eslint@8.55.0)(typescript@5.3.3)
   eslint-plugin-prettier:
     specifier: ^5.0.1
     version: 5.0.1(eslint-config-prettier@9.1.0)(eslint@8.55.0)(prettier@3.1.1)
@@ -598,8 +598,8 @@ packages:
       eslint: 8.55.0
     dev: true
 
-  /eslint-plugin-jest@27.6.0(eslint@8.55.0)(typescript@5.3.3):
-    resolution: {integrity: sha512-MTlusnnDMChbElsszJvrwD1dN3x6nZl//s4JD23BxB6MgR66TZlL064su24xEIS3VACfAoHV1vgyMgPw8nkdng==}
+  /eslint-plugin-jest@27.6.3(eslint@8.55.0)(typescript@5.3.3):
+    resolution: {integrity: sha512-+YsJFVH6R+tOiO3gCJon5oqn4KWc+mDq2leudk8mrp8RFubLOo9CVyi3cib4L7XMpxExmkmBZQTPDYVBzgpgOA==}
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
     peerDependencies:
       '@typescript-eslint/eslint-plugin': ^5.0.0 || ^6.0.0
