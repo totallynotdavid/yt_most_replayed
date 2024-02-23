@@ -23,6 +23,6 @@
     "prettier": "^3.1.1"
   },
   "dependencies": {
-    "puppeteer": "^21.6.0"
+    "puppeteer": "^22.2.0"
   }
 }
